@@ -1,1 +1,152 @@
+SELECT *
+FROM workspace.default.df_ready
+LIMIT 20;
 
+-- Important Columns to Add
+
+ALTER TABLE workspace.default.df_ready
+ADD COLUMN DailySales DOUBLE AFTER WeeklySales;
+
+ALTER TABLE workspace.default.df_ready
+ADD COLUMN DailyDiscount DOUBLE AFTER Discount;
+
+UPDATE workspace.default.df_ready
+SET DailySales = ROUND(WeeklySales / 7, 2),
+    DailyDiscount = CASE 
+        WHEN Discount IS NOT NULL THEN ROUND(Discount / 7, 2) 
+        ELSE 0 
+    END;
+
+-- Looking into the Spread of Discount Values to Understand how to Categorize Discounts Applied
+
+SELECT '10th' AS Percentile, PERCENTILE_CONT(0.1) WITHIN GROUP (ORDER BY DailyDiscount) AS PercentileValue
+FROM workspace.default.df_ready
+UNION ALL
+SELECT '20th', PERCENTILE_CONT(0.2) WITHIN GROUP (ORDER BY DailyDiscount) AS 20thPercentile
+FROM workspace.default.df_ready
+UNION ALL
+SELECT '30th', PERCENTILE_CONT(0.3) WITHIN GROUP (ORDER BY DailyDiscount) AS 30thPercentile
+FROM workspace.default.df_ready
+UNION ALL
+SELECT '40th', PERCENTILE_CONT(0.4) WITHIN GROUP (ORDER BY DailyDiscount) AS 40thPercentile
+FROM workspace.default.df_ready
+UNION ALL
+SELECT '50th', PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY DailyDiscount) AS 50thPercentile
+FROM workspace.default.df_ready
+UNION ALL
+SELECT '60th', PERCENTILE_CONT(0.6) WITHIN GROUP (ORDER BY DailyDiscount) AS 60thPercentile
+FROM workspace.default.df_ready
+UNION ALL
+SELECT '70th', PERCENTILE_CONT(0.7) WITHIN GROUP (ORDER BY DailyDiscount) AS 70thPercentile
+FROM workspace.default.df_ready
+UNION ALL
+SELECT '80th', PERCENTILE_CONT(0.8) WITHIN GROUP (ORDER BY DailyDiscount) AS 80thPercentile
+FROM workspace.default.df_ready
+UNION ALL
+SELECT '90th', PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY DailyDiscount) AS 90thPercentile
+FROM workspace.default.df_ready
+UNION ALL
+SELECT '99th', PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY DailyDiscount) AS 99thPercentile
+FROM workspace.default.df_ready; 
+-- 0 Until: 70th Percentile: 114.87, 80th Percentile: 332.58, 90th Percentile: 592.89, 99th Percentile: 2014.95
+
+-- Classifying Discount Applied
+
+ALTER TABLE workspace.default.df_ready
+ADD COLUMN DiscountType STRING AFTER DailyDiscount;
+
+UPDATE workspace.default.df_ready 
+SET DiscountType = CASE
+  WHEN DailyDiscount = 0 THEN 'No Discount'
+  WHEN DailyDiscount >= 114.87 AND DailyDiscount < 332.58 THEN 'Low Discount'
+  WHEN DailyDiscount >= 332.58 AND DailyDiscount < 592.89 THEN 'Discount'
+  WHEN DailyDiscount >= 592.89 AND DailyDiscount < 2014.95 THEN 'High Discount'
+  ELSE 'Max Discount'
+END;
+
+-- Top 10 Dates with the Highest Recorded Revenue ($) Across All Stores
+
+SELECT DISTINCT `Date`, 
+  ROUND(SUM(WeeklySales) OVER (PARTITION BY `Date` ORDER BY `Date`), 2) AS `Total Sales ($) by End of Week`
+FROM workspace.default.df_ready
+ORDER BY `Total Sales ($) by End of Week` DESC
+LIMIT 10;
+
+-- Top-Earning Months by Store Size Category Overall
+SELECT StoreSizeCategory, Month, SUM(WeeklySales) AS TotalSales
+FROM workspace.default.df_ready
+GROUP BY StoreSizeCategory, Month
+ORDER BY StoreSizeCategory, TotalSales DESC;
+
+-- Combining CTEs, Window Functions, and JOINs for Analytical Insights: Getting all Instances where Weekly Sales ($) are at or above the 90th Percentile, for each Date
+
+WITH q1 AS (
+  SELECT 
+    Date, Store, Dept, 
+    SUM(WeeklySales) AS TotalWeeklySales
+  FROM workspace.default.df_ready
+  GROUP BY Date, Store, Dept),
+q2 AS (
+  SELECT 
+    Date, 
+    PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY TotalWeeklySales) AS p90
+  FROM q1
+  GROUP BY Date)
+SELECT 
+  q1.Date, q1.Store, q1.Dept, q1.TotalWeeklySales
+FROM q1
+JOIN q2
+  ON q1.Date = q2.Date
+WHERE q1.TotalWeeklySales >= q2.p90
+ORDER BY q1.Date;
+
+-- Linear Correlation Measures | Correlation Analysis
+
+SELECT 'Temperature' AS Variable, 
+       CONCAT(ROUND(CORR(Temperature, DailySales)*100, 2), '%') AS `Correlation With DailySales`,
+       ROUND(REGR_SLOPE(Temperature, DailySales), 2) AS Slope,
+       ROUND(REGR_INTERCEPT(Temperature, DailySales), 2) AS Intercept
+FROM workspace.default.df_ready
+UNION ALL
+SELECT 'FuelPrice', 
+       CONCAT(ROUND(CORR(FuelPrice, DailySales)*100, 2), '%'),
+       ROUND(REGR_SLOPE(FuelPrice, DailySales), 2) AS Slope,
+       ROUND(REGR_INTERCEPT(FuelPrice, DailySales), 2) AS Intercept
+FROM workspace.default.df_ready
+UNION ALL
+SELECT 'DailyDiscount', 
+       CONCAT(ROUND(CORR(DailyDiscount, DailySales)*100, 2), '%'),
+       ROUND(REGR_SLOPE(DailyDiscount, DailySales), 2) AS Slope,
+       ROUND(REGR_INTERCEPT(DailyDiscount, DailySales), 2) AS Intercept
+FROM workspace.default.df_ready
+UNION ALL
+SELECT 'Unemployment', 
+       CONCAT(ROUND(CORR(Unemployment, DailySales)*100, 2), '%'),
+       ROUND(REGR_SLOPE(Unemployment, DailySales), 2) AS Slope,
+       ROUND(REGR_INTERCEPT(Unemployment, DailySales), 2) AS Intercept
+FROM workspace.default.df_ready
+UNION ALL
+SELECT 'CPI', 
+       CONCAT(ROUND(CORR(CPI, DailySales)*100, 2), '%'),
+       ROUND(REGR_SLOPE(CPI, DailySales), 2) AS Slope,
+       ROUND(REGR_INTERCEPT(CPI, DailySales), 2) AS Intercept
+FROM workspace.default.df_ready
+UNION ALL
+SELECT 'Size', 
+       CONCAT(ROUND(CORR(Size, DailySales)*100, 2), '%'),
+       ROUND(REGR_SLOPE(Size, DailySales), 2) AS Slope,
+       ROUND(REGR_INTERCEPT(Size, DailySales), 2) AS Intercept
+FROM workspace.default.df_ready;
+
+-- Total Sales, as well as their Proportion in the Total Overall, by Each Date Measured
+
+SELECT 
+  Date,
+  CAST(SUM(WeeklySales) AS INT) AS `Total Sales ($)`,
+  ROUND((SUM(WeeklySales) / SUM(SUM(WeeklySales)) OVER ())*100, 2) AS `Percentage of Total Sales (%)`
+FROM workspace.default.df_ready
+GROUP BY Date
+ORDER BY Date;
+SELECT *
+FROM workspace.default.df_ready
+LIMIT 20;
