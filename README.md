@@ -1,5 +1,5 @@
 # Dynamic Pricing Model
-(Link to the complete breakdown and story of this project; its "Project Article": 
+Link to the complete breakdown and story of this project: https://medium.com/@alijrizvi/business-optimization-with-data-driven-dynamic-pricing-model-c4f7d203543f
 
 ## Background
 This project utilizes datasets for fictional stores located in different regions to analyze and make predictive models to optimize future sales and pricing strategies. The datasets not only include information on features like Store Size and Weekly Sales ($), but also on external factors which might influence customer purchasing decisions [e.g., Consumer Price Index (CPI) of the time, Unemployment (%), etc.).
@@ -26,17 +26,17 @@ In addition to Exploratory Data Analysis (EDA) and Data Visualization with a wid
 
 Finally, there was statistical testing conducted in the form of ANOVA (Analysis of Variance) followed by Tukey's HSD test to compare pairwise differences between Month of the Year and average Weekly Sales ($).
 
-Once it was confirmed that there are significant differences in average Weekly Sales by Month, thr project moved on to the ultimate part: Time Series Analysis & Forecasting to build the Dynamic Pricing Model.
+Once it was confirmed that there are significant differences in average Weekly Sales by Month, the project moved on to the ultimate part: Time Series Analysis & Forecasting to build the Dynamic Pricing Model.
 
-A significant amount of Data Wrangling and Analysis was also done in Databricks, using SQL, and an ETL Pipeline was also made there to ensure smooth import and storage of related data files for this project.
+A significant amount of Data Wrangling and Analysis was also done in Databricks, using SQL, including the crafting and implementation of an ETL Pipeline using Apache Spark (PySpark) to ensure smooth import and storage of related data files for this project.
 
 ## Results & Interpretation
 
-Time Series Analysis allowed the forecasting of the next Year-and-a-half's (18 months') Weekly Sales ($) by Month, predict percentage sales change by month, and then use the latter to suggest pricing strategy shifts: this will be the Dynamic Pricing Model in and of itself.
+Time Series Analysis allowed the Forecasting of the next 18 months' Weekly Sales ($) by Month as well as the Prediction of the Percentage of Sales Change by Month, and then the use of the latter to suggest pricing strategy shifts: this will be the Dynamic Pricing Model in and of itself.
 
 ## Highlights
 
-Store Sizes were Categorized by Store Size Measures' Quantiles, and an Analytical Insight:
+Analytical Insight - Average Weekly Sales ($) by Store Size Category:
 <img width="570" height="453" alt="image" src="https://github.com/user-attachments/assets/e68f78b6-0dae-4df2-86b9-1f4e8001eb27" />
 
 How much does each Significant Measure within a Store Impact its Weekly Earnings ($)?
