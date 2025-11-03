@@ -4,7 +4,7 @@ Link to the complete breakdown and story of this project: https://medium.com/@al
 ## Background
 This project utilizes datasets for fictional stores located in different regions to analyze and make predictive models to optimize future sales and pricing strategies. The datasets not only include information on features like Store Size and Weekly Sales ($), but also on external factors which might influence customer purchasing decisions [e.g., Consumer Price Index (CPI) of the time, Unemployment (%), etc.).
 
-There were 3 datasets (.csv files) web-scraped in and joined together into one Dataframe for proper analysis and modeling, and each specialized in certain information.
+There were 3 datasets (.csv files) web-scraped in and joined together into one Dataframe for proper analysis and modeling, and each specialized in certain kinds of information.
 - "Stores": Anonymized information about the 45 stores, indicating the type and size of store.
 - "Features": Contains additional data related to the store, department, and regional activity for the given dates.
 - "Sales": Historical sales data, which covers from 2010-02-05 to 2012-11-01
