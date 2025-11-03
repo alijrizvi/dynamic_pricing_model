@@ -1,4 +1,4 @@
-# Dynamic Pricing Model
+# Dynamic Pricing Model:
 Link to the complete breakdown and story of this project: https://medium.com/@alijrizvi/business-optimization-with-data-driven-dynamic-pricing-model-c4f7d203543f
 
 ## Background
