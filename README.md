@@ -1,5 +1,6 @@
 # Dynamic Pricing Model
-Link to the complete breakdown and story of this project: https://medium.com/@alijrizvi/business-optimization-with-data-driven-dynamic-pricing-model-c4f7d203543f
+
+## Link to the complete breakdown and story of this project: https://medium.com/@alijrizvi/business-optimization-with-data-driven-dynamic-pricing-model-c4f7d203543f
 
 ## Background
 This project utilizes datasets for fictional stores located in different regions to analyze and make predictive models to optimize future sales and pricing strategies. The datasets not only include information on features like Store Size and Weekly Sales ($), but also on external factors which might influence customer purchasing decisions [e.g., Consumer Price Index (CPI) of the time, Unemployment (%), etc.).
